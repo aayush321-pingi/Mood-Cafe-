@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MoodBox — Full Menu</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Admin control (local data + sync) -->
+  <script src="adminControl.js"></script>
+  <style>
+    body { background: #0f1724; color: #e6eef8; }
+    .card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+    .animate-gradient {
+      animation: gradientMove 12s ease-in-out infinite alternate;
+    }
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+    .animate-fadein { animation: fadein 1.2s cubic-bezier(.4,0,.2,1) both; }
+    .animate-fadein2 { animation: fadein 1.8s cubic-bezier(.4,0,.2,1) both; }
+    @keyframes fadein { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+    .animate-float { animation: float 3.5s ease-in-out infinite; }
+    @keyframes float { 0% { transform: translateY(0); } 50% { transform: translateY(-12px); } 100% { transform: translateY(0); } }
+    .float-cup { animation: floatCup 4s ease-in-out infinite alternate; }
+    @keyframes floatCup { 0% { transform: translateY(0) scale(1); } 50% { transform: translateY(-10px) scale(1.08); } 100% { transform: translateY(0) scale(1); } }
+    .stagger-card { opacity: 0; transform: scale(0.96) translateY(24px); animation: cardIn 0.7s cubic-bezier(.4,0,.2,1) forwards; }
+    @keyframes cardIn { to { opacity: 1; transform: none; } }
+    .carousel-slide { opacity: 0; transform: scale(0.98) translateX(40px); animation: slideIn 1s cubic-bezier(.4,0,.2,1) forwards; }
+    @keyframes slideIn { to { opacity: 1; transform: none; } }
+    
+    /* Advanced Modal Animations */
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUpScale { from { opacity: 0; transform: translateY(40px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes zoomIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+    @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.3); } 50% { box-shadow: 0 0 40px rgba(236, 72, 153, 0.5); } }
+    @keyframes pulse-glow { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    
+    /* Card Enhancement */
+    .card-hover { transition: all 0.3s cubic-bezier(.4,0,.2,1); }
+    .card-hover:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 50px rgba(236, 72, 153, 0.3); }
+    
+    /* Addon button styles */
+    .addon-btn { transition: all 0.3s ease; }
+    .addon-btn.selected { background: linear-gradient(135deg, #7c3aed, #ec4899); box-shadow: 0 0 20px rgba(236, 72, 153, 0.5); transform: scale(1.05); }
+  </style>
+</head>
+<body class="antialiased">
+  <header class="py-6 border-b border-white/10 mb-6">
+    <div class="max-w-6xl mx-auto px-4 flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold">MoodBox — Full Menu</h1>
+        <p class="text-sm text-gray-400">Explore everything we offer, grouped by mood and category</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="px-4 py-2 rounded bg-white/5 hover:bg-white/10">Back</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Animated Hero Section -->
+  <!-- Featured Cafes Slider 
+  <section class="relative mb-12">
+      <h2 class="text-3xl font-bold text-white mb-6 text-center animate-fadein">Featured Cafes</h2>
+      <div id="cafesSlider" class="flex gap-8 overflow-x-auto px-2 py-4" style="scroll-snap-type:x mandatory;"></div>
+    </section> -->
+    <!-- Swiggy/Zomato-style Menu Area -->
+    <section id="menu-area" class="relative z-10 mt-12 mb-8">
+      <div class="absolute inset-0 -z-10 bg-gradient-to-br from-pink-900 via-purple-900 to-amber-900 opacity-80 blur-xl"></div>
+      <div class="flex flex-wrap gap-8 justify-center items-start">
+        <!-- Menu cards will be injected here -->
+      </div>
+    </section>
+  </section>
+  <section class="relative h-72 flex items-center justify-center overflow-hidden mb-10">
+    <div class="absolute inset-0 z-0">
+      <div class="absolute inset-0 bg-gradient-to-br from-purple-700/60 via-pink-600/40 to-amber-400/30 animate-gradient"></div>
+      <canvas id="heroParticles" class="absolute inset-0 w-full h-full" style="pointer-events:none;"></canvas>
+    </div>
+    <div class="relative z-10 text-center">
+      <h1 class="text-4xl md:text-6xl font-bold text-white mb-4 animate-fadein">MoodBox Café Menu</h1>
+      <p class="text-xl text-gray-200 mb-6 animate-fadein2">Discover, order, and experience our creative drinks & zones</p>
+      <div class="flex justify-center gap-4 animate-float">
+        <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=200" class="w-16 h-16 rounded-full shadow-lg float-cup" />
+        <img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?w=200" class="w-16 h-16 rounded-full shadow-lg float-cup" />
+        <img src="https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=200" class="w-16 h-16 rounded-full shadow-lg float-cup" />
+      </div>
+    </div>
+  </section>
+
+  <main class="max-w-6xl mx-auto px-4">
+    <div class="mb-6 flex gap-3 items-center">
+      <input id="menuSearch" placeholder="Search menu items..." class="pl-4 bg-white/5 border border-white/10 rounded-lg h-12 w-full text-white" />
+      <select id="moodFilter" class="bg-white/5 border border-white/10 text-white rounded-lg h-12 px-3">
+        <option value="">All moods</option>
+      </select>
+      <select id="categoryFilter" class="bg-white/5 border border-white/10 text-white rounded-lg h-12 px-3">
+        <option value="">All categories</option>
+      </select>
+    </div>
+
+    <!-- Top carousel / featured slider -->
+    <!-- Top carousel / featured slider -->
+    <div id="topCarousel" class="mb-8 relative overflow-hidden rounded-xl bg-white/3 backdrop-blur">
+      <div id="carouselTrack" class="flex gap-4 transition-transform duration-700 will-change-transform p-4"></div>
+    </div>
+
+    <!-- Menu sections grouped by mood -->
+    <div id="menuSections" class="space-y-12"></div>
+    
+    <!-- Swiggy/Zomato-style menu cards display -->
+    <div id="swiggyMenu" class="mt-12 mb-8">
+      <h2 class="text-3xl font-bold text-amber-400 mb-6">All Menu Items</h2>
+      <div id="swiggyMenuCards" class="flex flex-wrap gap-6 justify-center"></div>
+    </div>
+  </main>
+
+  <!-- Order Modal - Advanced Animated -->
+  <div id="orderModal" class="fixed inset-0 hidden items-center justify-center bg-black/80 backdrop-blur-sm z-50 p-4 overflow-y-auto" style="animation: fadeIn 0.4s ease-out;">
+    <div class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-3xl w-full max-w-lg my-8 p-6 shadow-2xl border border-purple-500/30 relative" role="dialog" aria-modal="true" aria-labelledby="orderTitle" style="animation: slideUpScale 0.5s cubic-bezier(.4,0,.2,1) forwards;">
+      <!-- Close Button -->
+      <button id="closeOrderModal" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-red-500/20 hover:bg-red-500/40 text-white flex items-center justify-center transition-all duration-300 group z-10" title="Close">
+        <span class="group-hover:rotate-90 transition-transform duration-300 text-lg">✕</span>
+      </button>
+
+      <!-- Header with Gradient -->
+      <div class="mb-4 pb-4 border-b border-purple-500/20">
+        <h3 id="orderTitle" class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-pink-400">Your Order</h3>
+        <p class="text-gray-300 text-xs mt-1">Customize your perfect drink</p>
+      </div>
+
+      <!-- Item Preview with Image -->
+      <div id="orderItemPreview" class="mb-6 rounded-2xl overflow-hidden bg-white/5 backdrop-blur border border-white/10 p-4" style="animation: fadeInUp 0.6s ease-out 0.1s both;">
+        <div class="flex gap-4 items-start">
+          <div class="w-24 h-24 rounded-lg bg-cover bg-center shadow-lg flex-shrink-0" id="orderItemImage" style="animation: zoomIn 0.6s ease-out 0.2s both;"></div>
+          <div class="flex-1 min-w-0">
+            <div id="orderItemName" class="text-lg font-bold text-white mb-1 truncate"></div>
+            <div id="orderItemDesc" class="text-gray-300 text-xs mb-3 line-clamp-2"></div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-2xl font-bold text-amber-400" id="orderItemPrice"></span>
+              <span id="orderMoodBadge" class="px-3 py-1 rounded-full bg-pink-500/30 text-pink-200 text-xs font-semibold"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customization Section -->
+      <div class="space-y-4 mb-6 max-h-64 overflow-y-auto">
+        <!-- Quantity -->
+        <div class="bg-white/5 backdrop-blur rounded-xl p-4 border border-white/10" style="animation: fadeInUp 0.6s ease-out 0.2s both;">
+          <label class="text-white font-semibold mb-3 block text-sm">Quantity</label>
+          <div class="flex items-center gap-3">
+            <button id="qtyMinus" class="w-10 h-10 rounded-full bg-purple-600 hover:bg-purple-700 text-white font-bold transition-all hover:scale-110">−</button>
+            <input id="orderQty" type="number" min="1" value="1" class="w-16 text-center text-lg font-bold bg-slate-800 border-2 border-purple-500/50 rounded-lg text-white focus:border-purple-400 focus:outline-none transition" />
+            <button id="qtyPlus" class="w-10 h-10 rounded-full bg-purple-600 hover:bg-purple-700 text-white font-bold transition-all hover:scale-110">+</button>
+            <span class="ml-auto text-amber-400 font-bold text-sm" id="qtySubtotal">₹0</span>
+          </div>
+        </div>
+
+        <!-- Add-ons -->
+        <div class="bg-white/5 backdrop-blur rounded-xl p-4 border border-white/10" style="animation: fadeInUp 0.6s ease-out 0.3s both;">
+          <label class="text-white font-semibold mb-3 block text-sm">✨ Add-ons</label>
+          <div class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto" id="addonList"></div>
+        </div>
+
+        <!-- Customer Info -->
+        <div class="bg-white/5 backdrop-blur rounded-xl p-4 border border-white/10" style="animation: fadeInUp 0.6s ease-out 0.4s both;">
+          <label class="text-white font-semibold mb-3 block text-sm">👤 Your Details</label>
+          <div class="space-y-2">
+            <input id="orderName" class="w-full p-2 rounded-lg bg-slate-800 border border-purple-500/30 text-white placeholder-gray-500 text-sm focus:border-purple-400 focus:outline-none transition" placeholder="Full name" />
+            <input id="orderEmail" class="w-full p-2 rounded-lg bg-slate-800 border border-purple-500/30 text-white placeholder-gray-500 text-sm focus:border-purple-400 focus:outline-none transition" placeholder="you@example.com" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Total & Action Buttons -->
+      <div class="border-t border-purple-500/20 pt-4 flex items-center justify-between gap-3">
+        <div class="text-center">
+          <div class="text-xs text-gray-400">Total</div>
+          <div class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-pink-400" id="orderTotal">₹0</div>
+        </div>
+        <div class="flex gap-2">
+          <button id="cancelOrderBtn" class="px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white font-semibold text-sm transition-all hover:scale-105">Cancel</button>
+          <button id="confirmOrderBtn" class="px-5 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold text-sm shadow-lg transition-all hover:scale-105 hover:shadow-2xl">Order ✓</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div id="toastContainer" style="position:fixed;right:16px;bottom:16px;z-index:99999;display:flex;flex-direction:column;gap:8px;align-items:flex-end"></div>
+
+  <!-- Swiggy/Zomato style flying badge with enhanced animation -->
+  <div id="orderFly" style="position:fixed;right:24px;bottom:120px;z-index:99998;pointer-events:none;display:none;">
+    <div class="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full shadow-2xl font-bold text-center border border-green-300/50 backdrop-blur">
+      <div>✓ Order Sent!</div>
+      <div class="text-xs mt-1 opacity-90">Your drink is being prepared</div>
+    </div>
+  </div>
+
+  <script>
+  // Load menu items and render grouped by mood
+  let menuItems = [];
+    const menuSections = document.getElementById('menuSections');
+    const moodFilter = document.getElementById('moodFilter');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const menuSearch = document.getElementById('menuSearch');
+  const carouselTrack = document.getElementById('carouselTrack');
+  const orderModal = document.getElementById('orderModal');
+  const orderBody = document.getElementById('orderBody');
+  const orderTotal = document.getElementById('orderTotal');
+  const confirmOrderBtn = document.getElementById('confirmOrderBtn');
+  const closeOrderModal = document.getElementById('closeOrderModal');
+
+    function unique(arr){ return [...new Set(arr)]; }
+
+    // Featured Cafes Data
+    const featuredCafes = [
+      {
+        name: 'MoodBox Central',
+        image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800',
+        rating: 4.8,
+        location: 'Connaught Place, Delhi',
+        tags: ['Signature', 'Live Music']
+      },
+      {
+        name: 'MoodBox Riverside',
+        image: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=800',
+        rating: 4.7,
+        location: 'Sabarmati Riverfront, Ahmedabad',
+        tags: ['Pet Friendly', 'River View']
+      },
+      {
+        name: 'MoodBox Tech Park',
+        image: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?w=800',
+        rating: 4.9,
+        location: 'Electronic City, Bangalore',
+        tags: ['Cowork', 'Silent Pods']
+      },
+      {
+        name: 'MoodBox Beachside',
+        image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800',
+        rating: 4.6,
+        location: 'Juhu Beach, Mumbai',
+        tags: ['Beach', 'Sunset']
+      },
+      {
+        name: 'MoodBox Art District',
+        image: 'https://images.unsplash.com/photo-1465101178521-c1a9136a3c5a?w=800',
+        rating: 4.7,
+        location: 'Kala Ghoda, Mumbai',
+        tags: ['Art', 'Gallery']
+      }
+    ];
+
+    function renderCafesSlider(){
+      const slider = document.getElementById('cafesSlider');
+      slider.innerHTML = '';
+      featuredCafes.forEach((cafe, idx)=>{
+        const card = document.createElement('div');
+        card.className = 'min-w-[320px] max-w-xs bg-white/5 rounded-xl shadow-lg overflow-hidden flex-shrink-0 transform-gpu transition-all hover:scale-105 hover:shadow-2xl scroll-snap-align-center cafe-card';
+        card.style.animation = `cardIn 0.8s cubic-bezier(.4,0,.2,1) forwards`;
+        card.style.animationDelay = (0.1 + idx * 0.12) + 's';
+        card.innerHTML = `
+          <div class="h-40 bg-cover bg-center relative" style="background-image:url('${cafe.image}')">
+            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
+              <div class="flex items-center gap-2">
+                <span class="text-yellow-300 text-lg font-bold">${cafe.rating}★</span>
+                <span class="text-white text-sm">${cafe.location}</span>
+              </div>
+            </div>
+          </div>
+          <div class="p-4">
+            <div class="font-bold text-white text-lg mb-1">${cafe.name}</div>
+            <div class="flex gap-2 flex-wrap mb-2">
+              ${cafe.tags.map(tag=>`<span class="px-2 py-1 bg-purple-700/30 text-purple-200 rounded text-xs">${tag}</span>`).join('')}
+            </div>
+            <button class="px-4 py-2 bg-amber-400 text-black rounded mt-2 shadow hover:bg-amber-500 transition">View</button>
+          </div>
+        `;
+        slider.appendChild(card);
+      });
+    }
+
+    function render() {
+      const moodVal = moodFilter.value;
+      const catVal = categoryFilter.value;
+      const q = (menuSearch.value || '').toLowerCase().trim();
+
+      let items = menuItems.slice();
+      if (moodVal) items = items.filter(i=> (i.mood_tag||'').toLowerCase()===moodVal);
+      if (catVal) items = items.filter(i=> (i.category||'').toLowerCase()===catVal);
+      if (q) items = items.filter(i=> (i.name||'').toLowerCase().includes(q) || (i.description||'').toLowerCase().includes(q));
+
+      // Group by mood
+      const moods = unique(items.map(i=>i.mood_tag||'')).filter(Boolean);
+      menuSections.innerHTML = '';
+      if (!items.length) { menuSections.innerHTML = '<p class="text-gray-400">No menu items matched your filters.</p>'; return; }
+
+      moods.forEach(mood=>{
+        const section = document.createElement('section');
+        section.innerHTML = '<h2 class="text-2xl font-bold mb-4 text-amber-300">' + mood[0].toUpperCase() + mood.slice(1) + '</h2>';
+        const grid = document.createElement('div');
+        grid.className = 'grid md:grid-cols-2 lg:grid-cols-3 gap-6';
+        items.filter(i=> (i.mood_tag||'')===mood).forEach((it, idx)=>{
+          const card = document.createElement('div');
+          card.className = 'card p-4 rounded-lg transform-gpu transition-all hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/40 stagger-card';
+          card.style.perspective = '1000px';
+          card.style.animationDelay = (0.1 + idx * 0.08) + 's';
+          const bgImg = it.image_url || '';
+          card.innerHTML = '<div class="h-40 bg-cover bg-center rounded mb-3 relative" style="background-image:url(' + "'" + bgImg + "'" + ')"><div class="absolute top-2 right-2 bg-amber-400/80 text-black px-2 py-1 rounded text-xs font-bold shadow">' + (it.category[0].toUpperCase() + it.category.slice(1)) + '</div><div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 flex items-end justify-between"><span class="text-amber-300 font-bold text-lg">₹' + (it.price || 0) + '</span><span class="text-purple-200 text-xs px-2 py-1 rounded bg-purple-700/30">' + (it.mood_tag[0].toUpperCase() + it.mood_tag.slice(1)) + '</span></div></div><h3 class="text-lg font-semibold flex items-center gap-2 mb-1"><span>' + it.name + '</span><span class="inline-block w-5 h-5 bg-gradient-to-br from-amber-400 to-pink-400 rounded-full shadow"></span></h3><p class="text-sm text-gray-300 mb-3">' + (it.description || '') + '</p><div class="flex items-center justify-between"><div class="flex items-center gap-2"><button class="px-3 py-1 rounded bg-gradient-to-r from-purple-600 to-pink-600 text-white orderBtn" data-id="' + it.id + '">Order</button></div></div>';
+          // Add tilt effect on mouse move
+          card.addEventListener('mousemove', (ev)=>{
+            const rect = card.getBoundingClientRect();
+            const x = (ev.clientX - rect.left) / rect.width - 0.5;
+            const y = (ev.clientY - rect.top) / rect.height - 0.5;
+            card.style.transform = 'rotateX(' + (-y*6) + 'deg) rotateY(' + (x*6) + 'deg) translateZ(0)';
+          });
+          card.addEventListener('mouseleave', ()=>{ card.style.transform=''; });
+          grid.appendChild(card);
+        });
+        section.appendChild(grid);
+        menuSections.appendChild(section);
+      });
+
+      // Update carousel with top 6 items
+      renderCarousel(items.slice(0,6));
+    }
+
+    // Swiggy/Zomato-style menu card rendering (all items in one horizontal flex wrap area)
+    function renderMenuCards() {
+      const swiggyMenuCards = document.getElementById('swiggyMenuCards');
+      swiggyMenuCards.innerHTML = '';
+      menuItems.forEach((it, idx) => {
+        const card = document.createElement('div');
+        card.className = 'card-hover relative p-0 rounded-2xl overflow-hidden shadow-xl bg-gradient-to-br from-black/80 via-purple-900/80 to-pink-900/80 group';
+        card.style.width = '280px';
+        card.style.animationDelay = idx * 80 + 'ms';
+        card.style.animation = 'cardIn 0.7s cubic-bezier(.4,0,.2,1) forwards';
+        
+        const bgImg = it.image_url || '';
+        const html = '<div class="relative h-40 w-full bg-cover bg-center" style="background-image:url(' + "'" + bgImg + "'" + ')"><div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/40 group-hover:to-black/60 transition-all duration-300"></div><div class="absolute top-3 left-3 flex gap-2"><span class="inline-block px-3 py-1 rounded-full bg-amber-400/90 text-black text-xs font-bold shadow-lg animate-pulse">' + (it.category[0].toUpperCase() + it.category.slice(1)) + '</span><span class="inline-block px-2 py-1 rounded-full bg-pink-500/80 text-white text-xs font-semibold shadow">' + (it.mood_tag[0].toUpperCase() + it.mood_tag.slice(1)) + '</span></div><span class="absolute top-3 right-3 inline-block w-8 h-8 bg-gradient-to-br from-amber-400 to-pink-400 rounded-full shadow-lg border-2 border-white animate-bounce"></span><div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-4 flex items-end justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-300"><span class="text-amber-300 font-bold text-lg drop-shadow">₹' + (it.price || 0) + '</span><button class="orderBtn px-4 py-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold shadow-lg hover:scale-110 transition-all duration-200" data-id="' + it.id + '">Order</button></div></div><div class="p-4 relative z-10"><h3 class="text-lg font-bold text-white mb-1 flex items-center gap-2 group-hover:text-amber-300 transition-colors">' + it.name + '<span class="inline-block w-4 h-4 bg-gradient-to-br from-amber-400 to-pink-400 rounded-full shadow group-hover:animate-pulse"></span></h3><p class="text-xs text-gray-300 mb-3 line-clamp-2 group-hover:text-gray-200 transition-colors">' + (it.description || '') + '</p><div class="flex items-center justify-between"><span class="text-amber-400 font-bold">₹' + (it.price || 0) + '</span><button class="orderBtn px-3 py-1 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-bold shadow hover:scale-110 transition-transform duration-200" data-id="' + it.id + '">Order</button></div></div><span class="absolute -top-4 -right-4 w-20 h-20 bg-gradient-to-br from-pink-400 to-amber-400 rounded-full blur-3xl opacity-50 group-hover:opacity-70 transition-opacity duration-300"></span>';
+        
+        card.innerHTML = html;
+        swiggyMenuCards.appendChild(card);
+      });
+    }
+
+    function renderCarousel(items){
+      carouselTrack.innerHTML = '';
+      items.forEach((it, idx)=>{
+        const el = document.createElement('div');
+        el.className = 'w-72 flex-shrink-0 card rounded-lg p-4 carousel-slide';
+        el.style.animationDelay = (0.1 + idx * 0.12) + 's';
+        const bgImg = it.image_url || '';
+        el.innerHTML = '<div class="h-36 bg-cover bg-center rounded mb-3" style="background-image:url(' + "'" + bgImg + "'" + ')"></div><div class="font-semibold">' + it.name + '</div><div class="text-sm text-gray-300">' + (it.description || '') + '</div><div class="text-amber-300 font-bold mt-2">₹' + (it.price || 0) + '</div>';
+        carouselTrack.appendChild(el);
+      });
+      // cinematic slide/fade autoplay
+      let idx = 0;
+      setInterval(()=>{
+        idx = (idx+1) % Math.max(1, items.length);
+        carouselTrack.childNodes.forEach((el, i)=>{
+          el.style.opacity = (i === idx) ? '1' : '0.3';
+          el.style.transform = (i === idx) ? 'scale(1.04)' : 'scale(0.98)';
+        });
+        carouselTrack.style.transform = 'translateX(' + (-idx * 296) + 'px)';
+      }, 3500);
+    }
+
+    // Toast helper with enhanced styling
+    function showToast(message, type='info', timeout=3000){
+      const container = document.getElementById('toastContainer');
+      if(!container) return;
+      const el = document.createElement('div');
+      el.textContent = message;
+      el.style.padding = '12px 16px';
+      el.style.borderRadius = '12px';
+      el.style.minWidth = '200px';
+      el.style.boxShadow = '0 8px 24px rgba(2,6,23,0.7)';
+      el.style.border = '1px solid rgba(255,255,255,0.1)';
+      el.style.backdropFilter = 'blur(8px)';
+      
+      if(type==='error'){ 
+        el.style.background = 'linear-gradient(135deg, rgba(127,29,29,0.8), rgba(153,27,27,0.8))';
+        el.style.color = '#fecaca';
+        el.style.borderColor = 'rgba(244,63,63,0.3)';
+      } else if(type==='success'){ 
+        el.style.background = 'linear-gradient(135deg, rgba(6,78,59,0.8), rgba(5,122,85,0.8))';
+        el.style.color = '#d1fae5';
+        el.style.borderColor = 'rgba(34,197,94,0.3)';
+        el.style.animation = 'pulse-glow 0.6s ease-out';
+      } else {
+        el.style.background = 'linear-gradient(135deg, rgba(17,24,39,0.8), rgba(31,41,55,0.8))';
+        el.style.color = '#e5e7eb';
+        el.style.borderColor = 'rgba(59,130,246,0.3)';
+      }
+      el.style.fontSize = '14px';
+      el.style.fontWeight = '500';
+      el.style.transition = 'all 0.3s ease';
+      el.style.opacity = '0';
+      container.appendChild(el);
+      
+      // Fade in
+      setTimeout(()=>{ el.style.opacity = '1'; }, 10);
+      
+      setTimeout(()=>{ 
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        setTimeout(()=>el.remove(), 300); 
+      }, timeout);
+    }
+
+    // Open order modal for an item id
+    let currentOrder = null;
+    function openOrderModal(id){
+      const item = menuItems.find(m=>m.id===id);
+      if(!item) return showToast('Item not found', 'error');
+      currentOrder = { item, qty:1, addons:[] };
+      
+      // Populate item preview
+      const bgImg = item.image_url || '';
+      document.getElementById('orderItemImage').style.backgroundImage = 'url(' + bgImg + ')';
+      document.getElementById('orderItemName').textContent = item.name;
+      document.getElementById('orderItemDesc').textContent = item.description || '';
+      document.getElementById('orderItemPrice').textContent = '₹' + (item.price || 0);
+      document.getElementById('orderMoodBadge').textContent = (item.mood_tag || 'special')[0].toUpperCase() + (item.mood_tag || 'special').slice(1);
+      
+      // Populate add-ons
+      const addonList = document.getElementById('addonList');
+      addonList.innerHTML = '';
+      const addons = menuItems.filter(i=> i.category==='addon' || i.category==='experience');
+      addons.forEach(a=>{
+        const btn = document.createElement('button');
+        btn.className = 'addon-btn p-4 rounded-xl bg-white/5 border border-purple-500/30 hover:border-purple-400 text-left transition-all duration-300 group';
+        btn.innerHTML = '<div class="font-semibold text-white group-hover:text-amber-300 transition">' + a.name + '</div><div class="text-xs text-gray-400">+₹' + a.price + '</div>';
+        btn.dataset.id = a.id;
+        btn.addEventListener('click', (e)=>{
+          e.preventDefault();
+          const idx = currentOrder.addons.indexOf(a.id);
+          if(idx===-1){ 
+            currentOrder.addons.push(a.id); 
+            btn.classList.add('selected');
+          } else { 
+            currentOrder.addons.splice(idx,1); 
+            btn.classList.remove('selected');
+          }
+          recalcOrderTotal();
+        });
+        addonList.appendChild(btn);
+      });
+
+      // Quantity controls
+      const qtyEl = document.getElementById('orderQty');
+      const qtyMinus = document.getElementById('qtyMinus');
+      const qtyPlus = document.getElementById('qtyPlus');
+      qtyMinus.addEventListener('click', ()=>{ currentOrder.qty = Math.max(1, currentOrder.qty - 1); qtyEl.value = currentOrder.qty; recalcOrderTotal(); });
+      qtyPlus.addEventListener('click', ()=>{ currentOrder.qty = currentOrder.qty + 1; qtyEl.value = currentOrder.qty; recalcOrderTotal(); });
+      qtyEl.addEventListener('input', ()=>{ currentOrder.qty = Math.max(1, Number(qtyEl.value||1)); recalcOrderTotal(); });
+
+      function recalcOrderTotal(){
+        const base = Number(currentOrder.item.price||0) * (currentOrder.qty||1);
+        const addonTotal = (currentOrder.addons||[]).reduce((s,id)=>s + (Number(menuItems.find(x=>x.id===id)?.price)||0), 0);
+        const total = base + addonTotal;
+        document.getElementById('orderTotal').textContent = '₹' + total;
+        document.getElementById('qtySubtotal').textContent = '₹' + base;
+        currentOrder.total = total;
+      }
+      recalcOrderTotal();
+      
+      // Show modal with animation
+      orderModal.classList.remove('hidden');
+      orderModal.classList.add('flex');
+      activateModalTrap(orderModal);
+    }
+
+    function submitOrder(){
+      if(!currentOrder) return showToast('No order in progress', 'error');
+      const name = document.getElementById('orderName').value.trim() || 'Guest';
+      const email = document.getElementById('orderEmail').value.trim() || '';
+      if(!name || name.length < 2) return showToast('Please enter your full name', 'error');
+      
+      const order = { 
+        user: name, 
+        total: currentOrder.total || 0, 
+        date: new Date().toISOString().split('T')[0], 
+        status: 'placed', 
+        details: { 
+          item: currentOrder.item.name, 
+          qty: currentOrder.qty, 
+          addons: currentOrder.addons,
+          email: email
+        } 
+      };
+      window.moodCafeAdmin?.addOrder(order);
+      
+      // Animate modal close
+      const modalEl = orderModal.querySelector('div[role="dialog"]');
+      modalEl.style.animation = 'slideUpScale 0.5s cubic-bezier(.4,0,.2,1) reverse';
+      setTimeout(()=>{
+        orderModal.classList.add('hidden');
+        orderModal.classList.remove('flex');
+        modalEl.style.animation = '';
+        showToast('✓ Order placed successfully! Your drink will be ready soon.', 'success', 4000);
+        animateOrderFly();
+        // clear
+        currentOrder = null;
+      }, 300);
+    }
+
+    function animateOrderFly(){
+      const fly = document.getElementById('orderFly');
+      fly.style.display='block';
+      fly.style.opacity='1';
+      fly.style.transform='translateY(0) scale(1)';
+      fly.style.animation = 'none';
+      // Trigger animation
+      setTimeout(()=>{
+        fly.style.animation = 'slideUpScale 0.8s cubic-bezier(.4,0,.2,1) forwards';
+      }, 10);
+      setTimeout(()=>{ 
+        fly.style.opacity='0';
+        fly.style.transform='translateY(-80px) scale(0.8)';
+      }, 600);
+      setTimeout(()=>{ fly.style.display='none'; fly.style.transform=''; fly.style.opacity=''; fly.style.animation=''; }, 1200);
+    }
+
+    // Accessibility: focus trap for modals
+    let activeTrap = null;
+    function activateModalTrap(modal){
+      if(activeTrap) deactivateModalTrap(activeTrap);
+      const focusableSelector = 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
+      const focusable = Array.from(modal.querySelectorAll(focusableSelector)).filter(el => el.offsetParent !== null);
+      const first = focusable[0];
+      const last = focusable[focusable.length-1];
+      const previouslyFocused = document.activeElement;
+      function keyHandler(e){
+        if(e.key === 'Tab'){
+          if(focusable.length === 0){ e.preventDefault(); return; }
+          if(e.shiftKey){
+            if(document.activeElement === first){ e.preventDefault(); last.focus(); }
+          } else {
+            if(document.activeElement === last){ e.preventDefault(); first.focus(); }
+          }
+        } else if(e.key === 'Escape'){
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+          deactivateModalTrap(modal);
+        }
+      }
+      modal.__modalTrap = { keyHandler, previouslyFocused };
+      document.addEventListener('keydown', keyHandler);
+      // set inert for main content to assistive tech (simple approach)
+      document.querySelector('main').setAttribute('aria-hidden', 'true');
+      if(first) first.focus();
+      activeTrap = modal;
+    }
+
+    function deactivateModalTrap(modal){
+      if(!modal || !modal.__modalTrap) return;
+      const { keyHandler, previouslyFocused } = modal.__modalTrap;
+      document.removeEventListener('keydown', keyHandler);
+      modal.__modalTrap = null;
+      document.querySelector('main').removeAttribute('aria-hidden');
+      try{ if(previouslyFocused) previouslyFocused.focus(); } catch(e){}
+      if(activeTrap === modal) activeTrap = null;
+    }
+
+    function wire() {
+      moodFilter.addEventListener('change', render);
+      categoryFilter.addEventListener('change', render);
+      menuSearch.addEventListener('input', () => { setTimeout(render, 120); });
+      document.addEventListener('click', (e)=>{
+        const b = e.target.closest('.orderBtn');
+        if (!b) return;
+        const id = b.getAttribute('data-id');
+        openOrderModal(id);
+      });
+      // close order modal - both close and cancel buttons
+      const closeModal = () => { 
+        orderModal.classList.add('hidden');
+        orderModal.classList.remove('flex');
+      };
+      closeOrderModal.addEventListener('click', closeModal);
+      document.getElementById('cancelOrderBtn').addEventListener('click', closeModal);
+      document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeModal(); });
+      confirmOrderBtn.addEventListener('click', submitOrder);
+    }
+
+    function init() {
+      // Use inline menu data provided by user (images are from Unsplash/placeholder)
+      menuItems = [
+        { id:'m1', name:'Calm Latte', description:'Oat milk latte & lavender syrup', price:249, category:'beverage', mood_tag:'relax', image_url:'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800' },
+        { id:'m2', name:'Joy Latte', description:'Vanilla-hazelnut latte with shimmer dust', price:269, category:'beverage', mood_tag:'joy', image_url:'https://images.unsplash.com/photo-1511920170033-f8396924c348?w=800' },
+        { id:'m3', name:'Focus Nitro Americano', description:'Americano with nitro pour & dark roast', price:239, category:'beverage', mood_tag:'focus', image_url:'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800' },
+        { id:'m4', name:'Classic Cappuccino', description:'Steamed milk & espresso classic', price:199, category:'beverage', mood_tag:'classic', image_url:'https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=800' },
+        { id:'m5', name:'Signature Cold Brew', description:'12-hr brewed single-origin iced coffee', price:299, category:'beverage', mood_tag:'cool', image_url:'https://images.unsplash.com/photo-1483555215022-5929e0a6d9c9?w=800' },
+        { id:'m6', name:'Pet-Zone Blend', description:'Filter coffee served in reusable mug (pet area)', price:219, category:'beverage', mood_tag:'playful', image_url:'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800' },
+        { id:'m7', name:"Couple's Share Mocha", description:'Large chocolate-coffee fusion (2 cups)', price:399, category:'beverage', mood_tag:'romantic', image_url:'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800' },
+        { id:'m8', name:'Silent Pod Boost Shot', description:'Matcha + espresso combo for focus zone', price:249, category:'beverage', mood_tag:'focus', image_url:'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=800' },
+        { id:'m9', name:'LED Table Game Drink', description:'Any premium drink + game token', price:0, category:'beverage', mood_tag:'fun', image_url:'https://images.unsplash.com/photo-1505576391880-6c8b9f6d7b6a?w=800' },
+        { id:'m10', name:'Masala Coffee', description:'Spiced Indian coffee (cardamom, ginger, cloves)', price:229, category:'beverage', mood_tag:'traditional', image_url:'https://images.unsplash.com/photo-1514519314485-2d9e6f3a1d6f?w=800' },
+        { id:'m11', name:'Espresso Tonic Spark', description:'Espresso with tonic water & lemon twist', price:259, category:'beverage', mood_tag:'spark', image_url:'https://images.unsplash.com/photo-1498804103079-a6351b050096?w=800' },
+        { id:'m12', name:'Lavender Honey Latte', description:'Honey-sweetened latte with lavender infusion', price:279, category:'beverage', mood_tag:'relax', image_url:'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800' },
+        { id:'m13', name:'Matcha Nitro Fusion', description:'Japanese matcha latte with nitro finish', price:289, category:'beverage', mood_tag:'zen', image_url:'https://images.unsplash.com/photo-1526318472351-c75fcf070f1c?w=800' },
+        { id:'m14', name:'Dalgona Cold Cloud', description:'Whipped coffee float over cold milk & ice', price:249, category:'beverage', mood_tag:'trendy', image_url:'https://images.unsplash.com/photo-1604908177542-9f0a0e6a0d7a?w=800' },
+        // Add-ons / experiences
+        { id:'a1', name:'Flavoured Syrup Upgrade (Lavender / Caramel / Hazelnut)', description:'Add flavored syrup', price:40, category:'addon', mood_tag:'addon', image_url:'https://images.unsplash.com/photo-1517686469429-8a7e38b4a7a1?w=800' },
+        { id:'a2', name:'Milk Upgrade (Oat / Almond / Soy)', description:'Choose a milk upgrade', price:30, category:'addon', mood_tag:'addon', image_url:'https://images.unsplash.com/photo-1544025162-d76694265947?w=800' },
+        { id:'p1', name:'Couple Room Experience Package', description:'2 drinks + dessert + mood lighting', price:699, category:'experience', mood_tag:'package', image_url:'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800' },
+        { id:'p2', name:'Pet Zone Access (30 min + drink)', description:'Access to pet area', price:349, category:'experience', mood_tag:'pet', image_url:'https://images.unsplash.com/photo-1507149833265-60c372daea22?w=800' },
+        { id:'p3', name:'Silent Pod Hour (includes drink + ambient focus zone)', description:'Hourly access to Silent Pod', price:299, category:'experience', mood_tag:'focus', image_url:'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=800' },
+        { id:'p4', name:'Game Token for LED Table', description:'Hidden game access token', price:50, category:'addon', mood_tag:'fun', image_url:'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=800' }
+      ];
+      // populate filters
+      const moods = unique(menuItems.map(i=> (i.mood_tag||'') )).filter(Boolean);
+      moods.forEach(m=>{ const o = document.createElement('option'); o.value = m; o.textContent = m[0].toUpperCase()+m.slice(1); moodFilter.appendChild(o); });
+      const cats = unique(menuItems.map(i=> (i.category||'') )).filter(Boolean);
+      cats.forEach(c=>{ const o = document.createElement('option'); o.value = c; o.textContent = c[0].toUpperCase()+c.slice(1); categoryFilter.appendChild(o); });
+      render();
+      renderMenuCards();
+    }
+
+    wire();
+    init();
+    renderCafesSlider();
+  </script>
+</body>
+</html>
