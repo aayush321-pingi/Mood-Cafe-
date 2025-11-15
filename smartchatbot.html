@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moodcafe Smart Chatbot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        .messages-container {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+        }
+        .messages-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .messages-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .messages-container::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="bg-transparent">
+    <div id="chatbot">
+        <!-- Closed State Button -->
+        <div id="chatButton" class="fixed bottom-24 right-6 z-40 scale-100">
+            <button onclick="toggleChat(true)" class="rounded-full w-16 h-16 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-2xl flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Chat Window -->
+        <div id="chatWindow" class="fixed bottom-24 right-6 z-40 w-full max-w-md hidden opacity-0 translate-y-4 scale-95">
+            <div class="bg-slate-950/95 backdrop-blur-xl border border-blue-500/30 shadow-2xl flex flex-col h-[500px] rounded-lg">
+                <!-- Header -->
+                <div class="p-4 border-b border-white/10 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-full flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white">
+                                <path d="M12 2C7.6 2 4 5.6 4 10c0 2.1.8 4 2.2 5.5L4 20l4.5-2.2C9.8 18.6 10.9 19 12 19c4.4 0 8-3.6 8-8s-3.6-9-8-9z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-white">MoodBox Assistant</h3>
+                            <p class="text-xs text-gray-400">Ask me anything!</p>
+                        </div>
+                    </div>
+                    <button onclick="toggleChat(false)" class="text-gray-400 hover:text-white p-2 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Messages -->
+                <div id="messages" class="flex-1 overflow-y-auto p-4 space-y-4 messages-container"></div>
+
+                <!-- Quick Questions -->
+                <div id="quickQuestions" class="px-4 pb-2">
+                    <p class="text-xs text-gray-400 mb-2">Quick questions:</p>
+                    <div class="grid grid-cols-2 gap-2" id="quickQuestionsGrid"></div>
+                </div>
+
+                <!-- Input -->
+                <div class="p-4 border-t border-white/10">
+                    <div class="flex gap-2">
+                        <input
+                            type="text"
+                            id="chatInput"
+                            placeholder="Type your message..."
+                            class="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                        <button
+                            onclick="sendMessage()"
+                            id="sendButton"
+                            class="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white px-4 py-2 rounded-lg flex items-center justify-center"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const initialMessage = {
+            role: "assistant",
+            content: "Hi! I'm your MoodBox AI assistant. Ask me about our menu, zones, events, or get personalized recommendations! 🎉"
+        };
+
+        let messages = [initialMessage];
+        let isLoading = false;
+
+        const quickQuestions = [
+            "What's popular on the menu?",
+            "Tell me about couple pods",
+            "What events are coming up?",
+            "I need help choosing a zone"
+        ];
+
+        // Initialize chat UI
+        function initChat() {
+            renderMessages();
+            renderQuickQuestions();
+            setupEventListeners();
+        }
+
+        function setupEventListeners() {
+            const input = document.getElementById('chatInput');
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        }
+
+        function toggleChat(show) {
+            const button = document.getElementById('chatButton');
+            const window = document.getElementById('chatWindow');
+            
+            if (show) {
+                button.style.transform = 'scale(0)';
+                window.classList.remove('hidden');
+                setTimeout(() => {
+                    window.style.transform = 'translate(0) scale(1)';
+                    window.style.opacity = '1';
+                    // Notify parent to resize iframe
+                    parent.postMessage({
+                        type: 'resize',
+                        width: 420,
+                        height: 600
+                    }, '*');
+                }, 50);
+            } else {
+                window.style.transform = 'translateY(16px) scale(0.95)';
+                window.style.opacity = '0';
+                setTimeout(() => {
+                    window.classList.add('hidden');
+                    button.style.transform = 'scale(1)';
+                    // Notify parent to minimize iframe
+                    parent.postMessage({
+                        type: 'resize',
+                        width: 100,
+                        height: 100
+                    }, '*');
+                }, 200);
+            }
+        }
+
+        function renderMessages() {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = '';
+
+            messages.forEach(msg => {
+                const messageEl = createMessageElement(msg);
+                messagesDiv.appendChild(messageEl);
+            });
+
+            if (isLoading) {
+                const loadingEl = createLoadingElement();
+                messagesDiv.appendChild(loadingEl);
+            }
+
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function createMessageElement(msg) {
+            const div = document.createElement('div');
+            div.className = `flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`;
+            
+            const iconDiv = document.createElement('div');
+            iconDiv.className = `w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                msg.role === 'user' 
+                    ? 'bg-gradient-to-br from-purple-600 to-pink-600' 
+                    : 'bg-gradient-to-br from-blue-600 to-cyan-600'
+            }`;
+            
+            const icon = msg.role === 'user' 
+                ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>'
+                : '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M12 2C7.6 2 4 5.6 4 10c0 2.1.8 4 2.2 5.5L4 20l4.5-2.2C9.8 18.6 10.9 19 12 19c4.4 0 8-3.6 8-8s-3.6-9-8-9z"></path></svg>';
+            
+            iconDiv.innerHTML = icon;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = `flex-1 ${msg.role === 'user' ? 'text-right' : ''}`;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `inline-block px-4 py-2 rounded-2xl ${
+                msg.role === 'user'
+                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
+                    : 'bg-white/10 text-gray-200'
+            }`;
+            
+            const text = document.createElement('p');
+            text.className = 'text-sm leading-relaxed';
+            text.textContent = msg.content;
+            
+            messageDiv.appendChild(text);
+            contentDiv.appendChild(messageDiv);
+            
+            div.appendChild(iconDiv);
+            div.appendChild(contentDiv);
+            
+            return div;
+        }
+
+        function createLoadingElement() {
+            const div = document.createElement('div');
+            div.className = 'flex gap-3';
+            div.innerHTML = `
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-full flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white">
+                        <path d="M12 2C7.6 2 4 5.6 4 10c0 2.1.8 4 2.2 5.5L4 20l4.5-2.2C9.8 18.6 10.9 19 12 19c4.4 0 8-3.6 8-8s-3.6-9-8-9z"></path>
+                    </svg>
+                </div>
+                <div class="bg-white/10 px-4 py-2 rounded-2xl">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 animate-spin">
+                        <line x1="12" y1="2" x2="12" y2="6"></line>
+                        <line x1="12" y1="18" x2="12" y2="22"></line>
+                        <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+                        <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+                        <line x1="2" y1="12" x2="6" y2="12"></line>
+                        <line x1="18" y1="12" x2="22" y2="12"></line>
+                        <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+                        <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+                    </svg>
+                </div>
+            `;
+            return div;
+        }
+
+        function renderQuickQuestions() {
+            if (messages.length > 1) {
+                document.getElementById('quickQuestions').style.display = 'none';
+                return;
+            }
+
+            const grid = document.getElementById('quickQuestionsGrid');
+            grid.innerHTML = '';
+            
+            quickQuestions.forEach(question => {
+                const button = document.createElement('button');
+                button.className = 'border border-white/10 text-gray-300 hover:bg-white/10 text-xs rounded-lg py-2 px-3';
+                button.textContent = question;
+                button.onclick = () => {
+                    document.getElementById('chatInput').value = question;
+                    setTimeout(sendMessage, 100);
+                };
+                grid.appendChild(button);
+            });
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message || isLoading) return;
+            
+            input.value = '';
+            messages.push({ role: 'user', content: message });
+            
+            isLoading = true;
+            renderMessages();
+            renderQuickQuestions();
+
+            try {
+                // Get context from parent window
+                const menuItems = window.parent.__menuData || [];
+                const zones = window.parent.__zonesData || [];
+                const events = window.parent.__eventsData || [];
+
+                // Generate contextual response
+                let response = "";
+                const query = message.toLowerCase();
+                
+                if (query.includes('menu') || query.includes('food') || query.includes('drink')) {
+                    const menuList = menuItems.slice(0, 3).map(item => `${item.name} ($${item.price})`).join(', ');
+                    response = `Our menu features mood-enhancing items like ${menuList}. Would you like to know more about specific items or mood categories?`;
+                } 
+                else if (query.includes('zone') || query.includes('space') || query.includes('area')) {
+                    const zoneList = zones.slice(0, 2).map(z => `${z.name} (${z.type})`).join(' and ');
+                    response = `We have specially designed zones including ${zoneList}. Each zone is crafted for a unique mood and experience. Would you like me to help you choose one?`;
+                }
+                else if (query.includes('event') || query.includes('happening')) {
+                    const upcomingEvents = events.slice(0, 2).map(e => `${e.title} on ${e.event_date}`).join(' and ');
+                    response = upcomingEvents ? 
+                        `Coming up we have ${upcomingEvents}. Would you like to know more or register?` :
+                        `We regularly host special events. Check our events section for the latest updates!`;
+                }
+                else if (query.includes('book') || query.includes('reserve')) {
+                    response = `I can help you book a zone! Would you like me to suggest one based on your mood, or would you prefer to see all available zones?`;
+                }
+                else if (query.includes('recommend') || query.includes('suggest')) {
+                    response = `I'd be happy to make a recommendation! Could you tell me what mood you're in? For example: relaxed, focused, social, or energetic?`;
+                }
+                else {
+                    response = `I'm here to help you with our menu, zones, events, and recommendations! What would you like to know more about?`;
+                }
+
+                messages.push({ role: 'assistant', content: response });
+            } catch (error) {
+                console.error("Chat error:", error);
+                messages.push({ 
+                    role: 'assistant', 
+                    content: "Sorry, I'm having trouble connecting. Please try again!" 
+                });
+            } finally {
+                isLoading = false;
+                renderMessages();
+                renderQuickQuestions();
+            }
+        }
+
+        // Initialize chat on load
+        window.addEventListener('load', initChat);
+
+        // Listen for parent commands (open/close) and data load
+        let parentMenuData = [];
+        window.addEventListener('message', (event) => {
+            const data = event.data || {};
+            if (data.type === 'open') {
+                try { toggleChat(true); } catch(e){/* ignore */}
+            }
+            if (data.type === 'close') {
+                try { toggleChat(false); } catch(e){/* ignore */}
+            }
+            if (data.type === 'dataLoaded' && data.entity === 'menu') {
+                parentMenuData = Array.isArray(data.items) ? data.items : (data.items ? [data.items] : []);
+                console.debug('smartchatbot: received menu data from parent', parentMenuData);
+            }
+        });
+    </script>
+</body>
+</html>

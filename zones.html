@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MoodBox — Mood Advisor (Standalone)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .advisor-panel { max-width:720px; margin:2.5rem auto; }
+    .floating-btn { position:fixed; right:1rem; bottom:1rem; z-index:60; }
+  </style>
+</head>
+<body class="bg-slate-950 text-white antialiased">
+  <div class="min-h-screen py-12 px-4">
+    <div class="advisor-panel">
+      <div class="bg-slate-900/60 backdrop-blur rounded-2xl border border-white/6 p-6 shadow-2xl">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">✨</div>
+            <div>
+              <h1 class="text-2xl font-bold">AI Mood Advisor</h1>
+              <p class="text-sm text-gray-400">Tell me how you're feeling and I'll recommend a mood, menu items and a perfect zone.</p>
+            </div>
+          </div>
+          <div class="text-xs text-gray-400">Standalone preview</div>
+        </div>
+
+        <textarea id="moodInput" rows="4" class="w-full bg-white/5 border border-white/10 p-3 rounded text-white placeholder:text-gray-500" placeholder="Describe how you're feeling..."></textarea>
+
+        <div class="mt-3 grid grid-cols-2 gap-2">
+          <button class="btn-quick py-2 rounded bg-gradient-to-r from-purple-600 to-pink-600 text-white" data-text="I'm feeling stressed and need to relax">Relax</button>
+          <button class="btn-quick py-2 rounded bg-gradient-to-r from-yellow-500 to-orange-500 text-white" data-text="I need energy for the day ahead">Energize</button>
+          <button class="btn-quick py-2 rounded bg-gradient-to-r from-pink-500 to-rose-500 text-white" data-text="Planning a romantic date">Romance</button>
+          <button class="btn-quick py-2 rounded bg-gradient-to-r from-purple-500 to-indigo-500 text-white" data-text="Need to focus on work">Focus</button>
+        </div>
+
+        <div class="mt-4 flex gap-2">
+          <button id="getRec" class="flex-1 py-3 rounded bg-gradient-to-r from-purple-600 to-pink-600">Get Recommendation</button>
+          <button id="resetBtn" class="py-3 px-4 rounded bg-white/5">Reset</button>
+        </div>
+
+        <div id="result" class="mt-6 space-y-4"></div>
+
+        <p class="text-xs text-gray-500 mt-4">Note: This demo simulates an LLM response locally. To call your real LLM, set window.MOOD_API_URL to an endpoint that returns the expected JSON shape.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Config: set window.MOOD_API_URL = 'https://your-api.example/mood' to call a real API.
+    const getMoodRecommendation = async (prompt) => {
+      if (window.MOOD_API_URL) {
+        try {
+          const res = await fetch(window.MOOD_API_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt }) });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return await res.json();
+        } catch (err) {
+          console.warn('Mood API failed, falling back to local simulation', err.message);
+        }
+      }
+
+      // Local simulated response
+      const lower = prompt.toLowerCase();
+      const isRelax = lower.includes('stress') || lower.includes('tired') || lower.includes('relax');
+      const isRomance = lower.includes('romant') || lower.includes('date');
+      const isEnergy = lower.includes('energy') || lower.includes('tired') || lower.includes('coffee');
+      const isFocus = lower.includes('focus') || lower.includes('work') || lower.includes('study');
+
+      if (isRomance) {
+        return {
+          mood_category: 'romance',
+          message: 'A quiet, romantic choice — soft lighting and shared desserts will set the tone.',
+          recommended_items: ['Chocolate Fondue', 'Lavender Latte'],
+          recommended_zone: 'couple_pod',
+          zone_reason: 'Private pods with warm lighting are perfect for an intimate date.'
+        };
+      }
+
+      if (isRelax) {
+        return {
+          mood_category: 'relax',
+          message: 'Unwind with soothing flavors and a calm environment.',
+          recommended_items: ['Lavender Latte', 'Chamomile Tea'],
+          recommended_zone: 'silent_pod',
+          zone_reason: 'Silent pods offer a peaceful space to decompress.'
+        };
+      }
+
+      if (isFocus) {
+        return {
+          mood_category: 'focus',
+          message: 'Fuel your concentration with strong, smooth coffee and a quiet spot.',
+          recommended_items: ['Nitro Cold Brew', 'Protein Snack'],
+          recommended_zone: 'silent_pod',
+          zone_reason: 'Silent pods provide desks, power outlets and minimal distractions.'
+        };
+      }
+
+      if (isEnergy) {
+        return {
+          mood_category: 'energize',
+          message: 'Boost your day with bold flavors and a high-energy zone.',
+          recommended_items: ['Citrus Espresso', 'Gaming Combo'],
+          recommended_zone: 'game_zone',
+          zone_reason: 'Game Arena keeps the energy up with lively vibes.'
+        };
+      }
+
+      // Default
+      return {
+        mood_category: 'comfort',
+        message: 'A cozy pick to make you feel at home — comforting flavors and relaxed seating.',
+        recommended_items: ['Fresh Pastries', 'House Coffee'],
+        recommended_zone: 'pet_zone',
+        zone_reason: 'Pet Zone offers gentle company and a relaxed ambiance.'
+      };
+    };
+
+    const input = document.getElementById('moodInput');
+    const getRecBtn = document.getElementById('getRec');
+    const resultEl = document.getElementById('result');
+    const resetBtn = document.getElementById('resetBtn');
+
+    document.querySelectorAll('.btn-quick').forEach(b=>b.addEventListener('click', (e)=>{ input.value = e.currentTarget.getAttribute('data-text'); }));
+
+    getRecBtn.addEventListener('click', async ()=>{
+      const text = input.value.trim();
+      if (!text) return alert('Please tell me how you feel.');
+      getRecBtn.disabled = true; getRecBtn.textContent = 'Analyzing...';
+      try {
+        const res = await getMoodRecommendation(text);
+        renderResult(res);
+      } catch (err) {
+        alert('Failed to get recommendation.');
+        console.error(err);
+      } finally {
+        getRecBtn.disabled = false; getRecBtn.textContent = 'Get Recommendation';
+      }
+    });
+
+    resetBtn.addEventListener('click', ()=>{ input.value=''; resultEl.innerHTML=''; });
+
+    function renderResult(r){
+      resultEl.innerHTML = `
+        <div class="p-4 bg-white/5 rounded-lg">
+          <div class="mb-2"><strong class="uppercase text-xs text-purple-300">${escapeHtml(r.mood_category)}</strong></div>
+          <p class="text-sm text-gray-200 mb-3">${escapeHtml(r.message)}</p>
+          <div class="mb-3">
+            <strong class="text-sm">Recommended Items</strong>
+            <ul class="list-disc list-inside text-gray-300 mt-1">${(r.recommended_items||[]).map(i=>`<li>${escapeHtml(i)}</li>`).join('')}</ul>
+          </div>
+          <div>
+            <strong class="text-sm">Perfect Zone:</strong>
+            <div class="text-gray-300">${escapeHtml((r.recommended_zone||'').replace(/_/g,' '))}</div>
+            <div class="text-xs text-gray-400 mt-1">${escapeHtml(r.zone_reason||'')}</div>
+          </div>
+        </div>
+      `;
+
+      // Post recommendation to parent window (if embedded as an iframe)
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'moodRecommendation', recommendation: r }, '*');
+        }
+      } catch (e) {
+        console.warn('Could not post message to parent', e);
+      }
+    }
+
+    function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  </script>
+</body>
+</html>
