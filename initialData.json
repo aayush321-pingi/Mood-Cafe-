@@ -1,0 +1,55 @@
+{
+    "menuItems": [
+        {
+            "id": 1,
+            "name": "Butter Chicken",
+            "category": "Main Course",
+            "price": 350,
+            "description": "Tender chicken in rich tomato gravy",
+            "image": "https://source.unsplash.com/320x240/?butter-chicken",
+            "status": "available"
+        },
+        {
+            "id": 2,
+            "name": "Masala Dosa",
+            "category": "Breakfast",
+            "price": 120,
+            "description": "Crispy crepe with spiced potato filling",
+            "image": "https://source.unsplash.com/320x240/?dosa",
+            "status": "available"
+        },
+        {
+            "id": 3,
+            "name": "Masala Chai",
+            "category": "Beverages",
+            "price": 40,
+            "description": "Spiced Indian tea with milk",
+            "image": "https://source.unsplash.com/320x240/?masala-chai",
+            "status": "available"
+        }
+    ],
+    "users": [
+        {
+            "id": 1,
+            "name": "Rahul Singh",
+            "email": "rahul@example.com",
+            "joined": "2025-11-01",
+            "status": "active",
+            "orders": 15
+        },
+        {
+            "id": 2,
+            "name": "Priya Sharma",
+            "email": "priya@example.com",
+            "joined": "2025-11-03",
+            "status": "active",
+            "orders": 8
+        }
+    ],
+    "stats": {
+        "totalUsers": 45,
+        "totalOrders": 128,
+        "revenue": 45620,
+        "activeUsers": 12
+    }
+}

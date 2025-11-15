@@ -1,0 +1,83 @@
+[
+  {
+    "name": "Citrus Sunrise Latte",
+    "description": "Bright citrus notes blended with creamy espresso and steamed milk — a refreshing morning pick-me-up.",
+    "image_url": "https://images.unsplash.com/photo-1511920170033-f8396924c348?w=800",
+    "category": "beverages",
+    "mood_tag": "energize",
+    "price": 4.5,
+    "dietary_info": ["vegetarian"],
+    "available": true
+  },
+  {
+    "name": "Lavender Honey Tea",
+    "description": "A calming herbal infusion with floral lavender and a touch of local honey — perfect for winding down.",
+    "image_url": "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=800",
+    "category": "beverages",
+    "mood_tag": "relax",
+    "price": 3.75,
+    "dietary_info": ["vegan", "gluten-free"],
+    "available": true
+  },
+  {
+    "name": "Focus Grain Bowl",
+    "description": "Protein-rich grains, roasted vegetables, and a zesty tahini dressing to keep you focused and energized.",
+    "image_url": "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=800",
+    "category": "food",
+    "mood_tag": "focus",
+    "price": 9.5,
+    "dietary_info": ["gluten-free"],
+    "available": true
+  },
+  {
+    "name": "Chocolate Ember Cake",
+    "description": "Decadent dark chocolate slice with a warm molten center — ideal for cozy, romantic moments.",
+    "image_url": "https://images.unsplash.com/photo-1544025162-d76694265947?w=800",
+    "category": "desserts",
+    "mood_tag": "romance",
+    "price": 6.0,
+    "dietary_info": ["contains-dairy"],
+    "available": true
+  }
+  ,
+  {
+    "name": "Masala Chai",
+    "description": "Spiced Indian tea brewed with milk and aromatic masala — comforting and warm.",
+    "image_url": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800",
+    "category": "beverages",
+    "mood_tag": "comfort",
+    "price": 2.5,
+    "dietary_info": ["vegetarian"],
+    "available": true
+  },
+  {
+    "name": "Tandoori Paneer Bowl",
+    "description": "Smoky tandoori-marinated paneer with spiced grains and raita — savory and satisfying.",
+    "image_url": "https://images.unsplash.com/photo-1604908176533-2a1b7e9d7f0f?w=800",
+    "category": "food",
+    "mood_tag": "comfort",
+    "price": 11.0,
+    "dietary_info": ["vegetarian", "gluten-free"],
+    "available": true
+  },
+  {
+    "name": "Cold Coffee",
+    "description": "Mini butter chicken sandwiches with a creamy tomato sauce — a fusion favorite.",
+    "image_url": "https://images.unsplash.com/photo-1604908176533-2a1b7e9d7f0f?w=800",
+    "category": "beverages",
+    "mood_tag": "comfort",
+    "price": 30.0Ruppess,
+    "dietary_info": ["contains-dairy"],
+    "available": true
+  },
+  {
+    "name": "Gulab Jamun",
+    "description": "Traditional Indian syrup-soaked dumplings — warm, sweet, and indulgent.",
+    "image_url": "https://images.unsplash.com/photo-1603575449829-0c7c4f1d5f86?w=800",
+    "category": "desserts",
+    "mood_tag": "romance",
+    "price": 4.0,
+    "dietary_info": ["contains-dairy"],
+    "available": true
+  }
+]
